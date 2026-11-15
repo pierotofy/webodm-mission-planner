@@ -1,0 +1,352 @@
+{% extends "app/plugins/templates/base.html" %}
+{% load i18n %}
+
+{% block extra-headers %}
+{% for css in map_css %}<link rel="stylesheet" href="{{ css }}">{% endfor %}
+<link rel="stylesheet" href="{{ plugin_url }}style.css?v={{ v }}">
+{% endblock %}
+
+{% block content %}
+<div class="mm-app mm-planner-page">
+    <div class="mm-shell" id="mm-shell" data-view="mission">
+        <header class="mm-appbar">
+            {% if has_missions %}<a class="btn btn-default mm-icon-btn" href="{{ plugin_url }}" title="{% trans 'Back to missions' %}" aria-label="{% trans 'Back to missions' %}"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>{% endif %}
+            <div class="mm-appbar-titles">
+                <h1 class="mm-title" id="mp-title">{% trans "New mission" %}</h1>
+                <p class="mm-subtitle text-muted" id="mp-subtitle"></p>
+            </div>
+            <button type="button" class="btn btn-primary" id="mp-save-top"><i class="fa fa-save" aria-hidden="true"></i> {% trans "Save" %}</button>
+        </header>
+
+        <nav class="mm-nav theme-secondary theme-border-highlight" aria-label="{% trans 'Planner sections' %}">
+            <div class="mm-tabs" role="tablist">
+                <button type="button" role="tab" class="mm-tab" id="mm-tab-mission" data-view="mission" aria-controls="mm-panel-mission"><span class="mm-tab-icon"><i class="fa fa-paper-plane" aria-hidden="true"></i></span><span class="mm-tab-label">{% trans "Mission" %}</span></button>
+                <button type="button" role="tab" class="mm-tab" id="mm-tab-flight" data-view="flight" aria-controls="mm-panel-flight"><span class="mm-tab-icon"><i class="fa fa-sliders-h" aria-hidden="true"></i></span><span class="mm-tab-label">{% trans "Flight" %}</span></button>
+                <button type="button" role="tab" class="mm-tab" id="mm-tab-options" data-view="options" aria-controls="mm-panel-options"><span class="mm-tab-icon"><i class="fa fa-cog" aria-hidden="true"></i></span><span class="mm-tab-label">{% trans "Options" %}</span></button>
+                <button type="button" role="tab" class="mm-tab" id="mm-tab-takeoff" data-view="takeoff" aria-controls="mm-panel-takeoff"><span class="mm-tab-icon"><i class="fa fa-plane-departure" aria-hidden="true"></i></span><span class="mm-tab-label">{% trans "Takeoff" %}</span></button>
+                <button type="button" role="tab" class="mm-tab" id="mm-tab-export" data-view="export" aria-controls="mm-panel-export"><span class="mm-tab-icon"><i class="fa fa-download" aria-hidden="true"></i></span><span class="mm-tab-label">{% trans "Export" %}</span></button>
+            </div>
+        </nav>
+
+        <div class="mm-body">
+            <div class="mm-map-wrap">
+                <div class="mm-map" id="mp-map"></div>
+                <section class="mm-hud" id="mp-hud" hidden aria-labelledby="mp-hud-title">
+                    <h2 class="mm-hud-title" id="mp-hud-title"><button type="button" class="mm-hud-head" id="mp-hud-toggle" aria-expanded="true" aria-controls="mp-hud-list"><span class="mm-hud-name">{% trans "Mission Stats" %}</span><span class="mm-hud-context" id="mp-hud-context"></span><i class="fa fa-chevron-down" aria-hidden="true"></i></button></h2>
+                    <dl class="mm-hud-list" id="mp-hud-list"></dl>
+                    <p class="mm-hud-info" id="mp-hud-info" hidden></p>
+                </section>
+                <div class="mm-busy" id="mp-busy" hidden><i class="fa fa-circle-notch fa-spin" aria-hidden="true"></i> <span>{% trans "Planning..." %}</span></div>
+            </div>
+
+            <section class="mm-pane" id="mm-panel-mission" role="tabpanel" aria-labelledby="mm-tab-mission" data-panel="mission" tabindex="-1">
+                <h2 class="mm-pane-title">{% trans "Mission" %}</h2>
+                <div class="form-group">
+                    <div class="mm-label"><label for="mp-kind">{% trans "Mission type" %}</label>{% blocktrans asvar t %}2D Mapping flies a grid over an area. Oblique flies it with a tilted camera for 3D models. Corridor follows a line. Orbit circles a point. Panorama shoots all around a point.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <select class="form-control" id="mp-kind">
+                        <option value="2d">{% trans "2D Mapping" %}</option>
+                        <option value="oblique">{% trans "Oblique Mapping" %}</option>
+                        <option value="corridor">{% trans "Corridor Mapping" %}</option>
+                        <option value="orbit">{% trans "Orbit (3D Model)" %}</option>
+                        <option value="panorama">{% trans "Panorama" %}</option>
+                    </select>
+                </div>
+                <div class="form-group" id="mp-row-capture">
+                    <div class="mm-label"><span class="mm-label-text" id="mp-capture-label">{% trans "Capture" %}</span>{% blocktrans asvar t %}Semi: the drone flies the lines and you set interval capture before takeoff. Full: a waypoint at every photo, shot automatically. Slower, uses more battery.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="btn-group mm-seg" role="group" aria-labelledby="mp-capture-label" data-field="capture">
+                        <button type="button" class="btn btn-default" data-value="semi">{% trans "Semi" %}</button>
+                        <button type="button" class="btn btn-default" data-value="full">{% trans "Full" %}</button>
+                    </div>
+                </div>
+                <div class="form-group" id="mp-row-path">
+                    <div class="mm-label"><span class="mm-label-text" id="mp-path-label">{% trans "Flight path" %}</span>{% blocktrans asvar t %}Curved is DJI Fly's own style and survives a re-save on the controller. Straight stops at each point; DJI Fly reorders it if you re-save there.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="btn-group mm-seg" role="group" aria-labelledby="mp-path-label" data-field="path">
+                        <button type="button" class="btn btn-default" data-value="curved">{% trans "Curved" %}</button>
+                        <button type="button" class="btn btn-default" data-value="straight">{% trans "Straight" %}</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="mm-label"><label for="mp-drone">{% trans "Drone" %}</label>{% blocktrans asvar t %}Sets the camera, speed range and battery used in every calculation.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <select class="form-control" id="mp-drone"></select>
+                    <p class="help-block" id="mp-camera"></p>
+                </div>
+                <div class="mm-sub" id="mp-area-section">
+                <h3 class="mm-sub-title" id="mp-area-title">{% trans "Survey area" %}</h3>
+                <div class="form-group" id="mp-row-pano-layout">
+                    <div class="mm-label"><span class="mm-label-text" id="mp-pano-layout-label">{% trans "Panorama" %}</span>{% blocktrans asvar t %}Points: a panorama at every point you place. Area: points spread over an area on a hexagon grid.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="btn-group mm-seg" role="group" aria-labelledby="mp-pano-layout-label" data-field="panorama_layout">
+                        <button type="button" class="btn btn-default" data-value="points">{% trans "Points" %}</button>
+                        <button type="button" class="btn btn-default" data-value="area">{% trans "Area" %}</button>
+                    </div>
+                </div>
+                <div id="mp-area-shape">
+                    <p class="mm-readout" id="mp-shape-readout"></p>
+                    <div class="mm-buttons">
+                        <button type="button" class="btn btn-default" id="mp-draw"><i class="fa fa-pen" aria-hidden="true"></i> <span>{% trans "Draw" %}</span></button>
+                        <button type="button" class="btn btn-default" id="mp-edit"><i class="fa fa-edit" aria-hidden="true"></i> <span>{% trans "Edit" %}</span></button>
+                        <label class="btn btn-default" for="mp-file" id="mp-import"><i class="fa fa-file-import" aria-hidden="true"></i> {% trans "Import" %}</label>
+                        <input type="file" id="mp-file" accept=".geojson,.json,.kml,.kmz" class="mm-hidden-file">
+                        <button type="button" class="btn btn-default" id="mp-remove"><i class="fa fa-times" aria-hidden="true"></i> {% trans "Remove" %}</button>
+                    </div>
+                    <p class="help-block" id="mp-draw-help" hidden></p>
+                </div>
+                <div id="mp-area-rings">
+                    <div class="form-group">
+                        <div class="mm-label"><label for="mp-ring">{% trans "Ring" %}</label>{% blocktrans asvar t %}The ring whose radius, altitude and camera tilt the Flight section edits. Rings are flown in order, up to 3.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <div class="mm-inline">
+                            <select class="form-control" id="mp-ring"></select>
+                            <button type="button" class="btn btn-default" id="mp-add-ring"><i class="fa fa-plus" aria-hidden="true"></i> {% trans "Add ring" %}</button>
+                            <button type="button" class="btn btn-default mm-icon-btn" id="mp-remove-ring" title="{% trans 'Remove ring' %}" aria-label="{% trans 'Remove ring' %}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                        </div>
+                        <p class="help-block" id="mp-ring-limit" hidden>{% trans "An orbit can have up to 3 rings." %}</p>
+                    </div>
+                </div>
+                <div class="alert alert-warning" id="mp-area-msg" role="alert" hidden></div>
+                </div>
+            </section>
+
+            <section class="mm-pane" id="mm-panel-flight" role="tabpanel" aria-labelledby="mm-tab-flight" data-panel="flight" tabindex="-1">
+                <h2 class="mm-pane-title">{% trans "Flight" %}</h2>
+                <div class="mm-row">
+                    <div class="form-group">
+                        <div class="mm-label"><label for="mp-altitude" id="mp-altitude-label">{% trans "Altitude (m)" %}</label>{% blocktrans asvar t %}Height above the takeoff point. Higher covers more per photo at a lower resolution.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-altitude" min="30" max="500" step="5">
+                    </div>
+                    <div class="form-group" id="mp-row-gsd">
+                        <div class="mm-label"><label for="mp-gsd">{% trans "GSD (cm/px)" %}</label>{% blocktrans asvar t %}Ground size of one pixel. Linked to altitude: changing one updates the other.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-gsd" min="0.1" max="20" step="0.1">
+                    </div>
+                </div>
+                <div class="mm-row" id="mp-row-radius">
+                    <div class="form-group">
+                        <div class="mm-label"><label for="mp-radius" id="mp-radius-label">{% trans "Radius (m)" %}</label>{% blocktrans asvar t %}Distance from the centre to the circle. Leave room around the object for a safe flight.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-radius" min="5" max="2000" step="5">
+                    </div>
+                    <div class="form-group">
+                        <div class="mm-label"><label for="mp-tilt" id="mp-tilt-label">{% trans "Camera tilt (°)" %}</label>{% blocktrans asvar t %}0° looks at the horizon, -90° straight down. -30° to -45° suits 3D models.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-tilt" min="-90" max="0" step="5">
+                    </div>
+                </div>
+                <div class="mm-row">
+                    <div class="form-group" id="mp-row-side">
+                        <div class="mm-label"><label for="mp-side">{% trans "Side overlap (%)" %}</label>{% blocktrans asvar t %}Overlap between neighbouring lines. 60-75% for flat ground, 70-80% for hills.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-side" min="50" max="95" step="1">
+                    </div>
+                    <div class="form-group" id="mp-row-front">
+                        <div class="mm-label"><label for="mp-front" id="mp-front-label">{% trans "Front overlap (%)" %}</label>{% blocktrans asvar t %}Overlap between photos along a line. Aim for 75-85% for mapping, 85-90% for 3D.{% endblocktrans %}{% blocktrans asvar t2 %}In Semi capture the camera shoots at a fixed interval while the drone flies, so front overlap follows the speed. Change the speed, or switch to Full capture to set it.{% endblocktrans %}<button type="button" class="mm-info" id="mp-front-tip" data-full="{{ t }}" data-semi="{{ t2 }}" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-front" min="50" max="95" step="5">
+                        <output class="form-control mm-output" id="mp-front-readout" aria-live="polite"></output>
+                        <p class="mm-readout" id="mp-front-note"></p>
+                    </div>
+                </div>
+                <div class="mm-row">
+                    <div class="form-group">
+                        <div class="mm-label"><label for="mp-speed">{% trans "Speed (m/s)" %}</label>{% blocktrans asvar t %}Faster is shorter but can blur photos.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-speed" step="0.5">
+                    </div>
+                    <div class="form-group" id="mp-row-margin">
+                        <div class="mm-label"><label for="mp-margin">{% trans "Margin (m)" %}</label>{% blocktrans asvar t %}Extra distance around the area so its edges are fully covered.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-margin" min="0" max="200" step="5">
+                    </div>
+                    <div class="form-group" id="mp-row-buffer">
+                        <div class="mm-label"><label for="mp-buffer">{% trans "Buffer (m)" %}</label>{% blocktrans asvar t %}How far to map on each side of the line. Passes are added to cover it.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-buffer" min="1" max="500" step="1">
+                    </div>
+                </div>
+                <div class="form-group" id="mp-row-direction">
+                    <div class="mm-label"><label for="mp-direction">{% trans "Direction (°)" %}</label>{% blocktrans asvar t %}Flight line direction. Auto picks the shortest route and follows changes.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="mm-inline">
+                        <input type="number" class="form-control" id="mp-direction" min="0" max="359.9" step="1">
+                        <button type="button" class="btn btn-default" id="mp-auto" aria-pressed="false"><i class="fa fa-magic" aria-hidden="true"></i> {% trans "Auto" %}</button>
+                    </div>
+                </div>
+                <div id="mp-rows-oblique">
+                    <div class="form-group">
+                        <div class="mm-label"><span class="mm-label-text" id="mp-pattern-label">{% trans "Pattern" %}</span>{% blocktrans asvar t %}Fast: two crossing grids facing along the lines, about half the time. Full: four passes, one facing each side, for the best 3D models.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <div class="btn-group mm-seg" role="group" aria-labelledby="mp-pattern-label" data-field="oblique_pattern">
+                            <button type="button" class="btn btn-default" data-value="fast">{% trans "Fast" %}</button>
+                            <button type="button" class="btn btn-default" data-value="full">{% trans "Full" %}</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="mm-label"><label for="mp-pitch">{% trans "Camera angle (°)" %}</label>{% blocktrans asvar t %}Tilt of the oblique passes. -45° to -60° suits 3D models.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-pitch" min="-85" max="-20" step="5">
+                    </div>
+                    <div class="checkbox mm-label"><label><input type="checkbox" id="mp-nadir"> {% trans "Fly a nadir pass" %}</label>{% blocktrans asvar t %}Fly the area once looking straight down first, for a sharp top view.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                </div>
+                <div id="mp-rows-pano">
+                    <div class="mm-row">
+                        <div class="form-group">
+                            <div class="mm-label"><label for="mp-pano-overlap">{% trans "Photo overlap (%)" %}</label>{% blocktrans asvar t %}Overlap around each row and between rows. 30% suits most stitching software.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <input type="number" class="form-control" id="mp-pano-overlap" min="20" max="70" step="5">
+                        </div>
+                        <div class="form-group" id="mp-row-spacing">
+                            <div class="mm-label"><label for="mp-pano-spacing">{% trans "Point spacing (m)" %}</label>{% blocktrans asvar t %}Distance between points in Area mode. 0 uses the altitude.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <input type="number" class="form-control" id="mp-pano-spacing" min="0" max="5000" step="10">
+                            <p class="mm-readout" id="mp-spacing-hint"></p>
+                        </div>
+                    </div>
+                    <div class="checkbox mm-label"><label><input type="checkbox" id="mp-pano-nadir"> {% trans "Straight-down photo" %}</label>{% blocktrans asvar t %}End each panorama with one photo looking straight down.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                </div>
+            </section>
+
+            <section class="mm-pane" id="mm-panel-options" role="tabpanel" aria-labelledby="mm-tab-options" data-panel="options" tabindex="-1">
+                <h2 class="mm-pane-title">{% trans "Options" %}</h2>
+                <fieldset class="mm-sub mm-sub-first">
+                    <legend class="mm-sub-title">{% trans "Splitting" %}</legend>
+                    <div class="checkbox mm-label" id="mp-row-split"><label><input type="checkbox" id="mp-split"> {% trans "Enable splitting" %}</label>{% blocktrans asvar t %}Add flights when battery or waypoint limits need them. Off asks for one flight.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="mm-row">
+                        <div class="form-group" id="mp-row-split-count">
+                            <div class="mm-label"><label for="mp-split-count">{% trans "Minimum flights" %}</label>{% blocktrans asvar t %}Each flight uses one battery and its own KMZ. Follows the battery estimate until you change it.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <input type="number" class="form-control" id="mp-split-count" min="1" max="99" step="1">
+                        </div>
+                        <div class="form-group">
+                            <div class="mm-label"><label for="mp-max-wp">{% trans "Max waypoints" %}</label>{% blocktrans asvar t %}Most waypoints in one flight. DJI allows about 200.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <input type="number" class="form-control" id="mp-max-wp" min="2" max="200" step="1">
+                        </div>
+                    </div>
+                    <div class="mm-buttons" id="mp-row-breaks">
+                        <button type="button" class="btn btn-default" id="mp-breaks" aria-pressed="false"><i class="fa fa-cut" aria-hidden="true"></i> <span>{% trans "Set mission breaks" %}</span></button>
+                    </div>
+                    <p class="help-block" id="mp-breaks-help" hidden>{% trans "Click a vertex of the line to break the mission there. Click it again to remove the break." %}</p>
+                </fieldset>
+                <fieldset class="mm-sub" id="mp-route-options">
+                    <legend class="mm-sub-title">{% trans "Route" %}</legend>
+                    <div class="checkbox mm-label" id="mp-row-cross"><label><input type="checkbox" id="mp-cross"> {% trans "Cross-hatch" %}</label>{% blocktrans asvar t %}Fly the grid again at 90°. Better 3D, about twice the flight time.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="checkbox mm-label" id="mp-row-reverse"><label><input type="checkbox" id="mp-reverse"> <span id="mp-reverse-label">{% trans "Reverse route" %}</span></label><button type="button" class="mm-info" data-toggle="tooltip" id="mp-reverse-tip" title="" aria-label=""><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="checkbox mm-label" id="mp-row-terrain"><label><input type="checkbox" id="mp-terrain"> {% trans "Terrain follow" %}</label>{% blocktrans asvar t %}Keep a constant height above the ground using online elevation data. Follows bare earth, not trees or buildings.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="form-group" id="mp-row-terrain-tol">
+                        <div class="mm-label"><label for="mp-terrain-tol">{% trans "Terrain tolerance (m)" %}</label>{% blocktrans asvar t %}Add a waypoint when the ground rises or falls more than this. Smaller follows closer with more waypoints.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <input type="number" class="form-control" id="mp-terrain-tol" min="1" max="100" step="1">
+                    </div>
+                </fieldset>
+                <fieldset class="mm-sub">
+                    <legend class="mm-sub-title">{% trans "Safety" %}</legend>
+                    <div class="mm-row">
+                        <div class="form-group">
+                            <div class="mm-label"><label for="mp-finish">{% trans "Finish" %}</label>{% blocktrans asvar t %}What the drone does after the last waypoint.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <select class="form-control" id="mp-finish">
+                                <option value="Return to Home">{% trans "Return to Home" %}</option>
+                                <option value="Hover in place">{% trans "Hover in place" %}</option>
+                                <option value="Land at last waypoint">{% trans "Land at last waypoint" %}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="mm-label"><label for="mp-rc-lost">{% trans "Signal lost" %}</label>{% blocktrans asvar t %}What the drone does if the controller signal is lost.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <select class="form-control" id="mp-rc-lost">
+                                <option value="Return to Home">{% trans "Return to Home" %}</option>
+                                <option value="Hover in place">{% trans "Hover in place" %}</option>
+                                <option value="Land immediately">{% trans "Land immediately" %}</option>
+                                <option value="Continue mission">{% trans "Continue mission" %}</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </section>
+
+            <section class="mm-pane" id="mm-panel-takeoff" role="tabpanel" aria-labelledby="mm-tab-takeoff" data-panel="takeoff" tabindex="-1">
+                <h2 class="mm-pane-title mm-label">{% trans "Takeoff zone" %} {% blocktrans asvar t %}Ground within 500 m of the first waypoint at its elevation, so repeat flights keep the same altitude and GSD.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></h2>
+                <p class="text-muted" id="mp-takeoff-na" hidden>{% trans "Not used for orbits and panoramas." %}</p>
+                <div id="mp-takeoff-body">
+                    <div class="mm-buttons">
+                        <button type="button" class="btn btn-default" id="mp-show-takeoff" aria-pressed="false"><i class="fa fa-plane-departure" aria-hidden="true"></i> <span>{% trans "Show takeoff zone" %}</span></button>
+                    </div>
+                    <div class="mm-row">
+                        <div class="form-group">
+                            <div class="mm-label"><label for="mp-takeoff-tol">{% trans "Tolerance (m)" %}</label>{% blocktrans asvar t %}How much the takeoff ground may differ from the mission start.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <input type="number" class="form-control" id="mp-takeoff-tol" min="0.1" max="50" step="0.5">
+                            <p class="mm-readout" id="mp-gsd-var"></p>
+                        </div>
+                        <div class="form-group">
+                            <div class="mm-label"><label for="mp-launch-offset">{% trans "Launch offset (m)" %}</label>{% blocktrans asvar t %}Height of your takeoff spot above the ground at the first waypoint, e.g. 2 m from a car roof. Shifts every waypoint height.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <input type="number" class="form-control" id="mp-launch-offset" min="-50" max="50" step="0.5">
+                        </div>
+                    </div>
+                    <div class="checkbox mm-label"><label><input type="checkbox" id="mp-same-takeoff"> {% trans "Same takeoff for all splits" %}</label>{% blocktrans asvar t %}With terrain follow, reference every flight to the first waypoint so all flights launched from one spot keep the same height.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                    <div class="alert alert-info" id="mp-takeoff-msg" role="status" hidden></div>
+                </div>
+            </section>
+
+            <section class="mm-pane" id="mm-panel-export" role="tabpanel" aria-labelledby="mm-tab-export" data-panel="export" tabindex="-1">
+                <h2 class="mm-pane-title">{% trans "Export" %}</h2>
+                <fieldset class="mm-sub mm-sub-first">
+                    <legend class="mm-sub-title">{% trans "Save" %}</legend>
+                    <div class="form-group">
+                        <label for="mp-name">{% trans "Mission name" %}</label>
+                        <input type="text" class="form-control" id="mp-name" maxlength="255">
+                    </div>
+                    <div class="form-group" id="mp-row-project">
+                        <div class="mm-label"><label for="mp-project">{% trans "Project" %}</label>{% blocktrans asvar t %}People who can see the project can open the mission. People who can edit it can change it.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                        <select class="form-control" id="mp-project"></select>
+                    </div>
+                    <p class="text-muted" id="mp-readonly" hidden>{% trans "You can view this mission but not change it." %}</p>
+                    <div class="mm-buttons">
+                        <button type="button" class="btn btn-primary" id="mp-save"><i class="fa fa-save" aria-hidden="true"></i> {% trans "Save" %}</button>
+                        <button type="button" class="btn btn-default" id="mp-save-new" hidden><i class="fa fa-copy" aria-hidden="true"></i> {% trans "Save as new" %}</button>
+                        <button type="button" class="btn btn-danger" id="mp-delete" hidden><i class="fa fa-trash" aria-hidden="true"></i> {% trans "Delete" %}</button>
+                    </div>
+                    <div class="alert" id="mp-save-msg" role="status" hidden></div>
+                </fieldset>
+                <fieldset class="mm-sub">
+                    <legend class="mm-sub-title">{% trans "Download" %}</legend>
+                    <div class="form-group" id="mp-row-part">
+                        <label for="mp-part">{% trans "Flight" %}</label>
+                        <select class="form-control" id="mp-part"></select>
+                    </div>
+                    <div class="mm-buttons">
+                        <button type="button" class="btn btn-default" id="mp-download"><i class="fa fa-download" aria-hidden="true"></i> {% trans "Download KMZ" %}</button>
+                    </div>
+                    <div class="alert alert-warning" id="mp-export-msg" role="alert" hidden></div>
+                </fieldset>
+                <fieldset class="mm-sub" id="mp-rc">
+                    <legend class="mm-sub-title mm-label">{% trans "Controller" %} {% blocktrans asvar t %}Replaces a mission on a DJI RC with this flight. Create a waypoint mission in DJI Fly first to have a slot to replace.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></legend>
+                    <div id="mp-rc-usb">
+                        <div class="mm-buttons">
+                            <button type="button" class="btn btn-default" id="mp-rc-detect"><i class="fab fa-usb" aria-hidden="true"></i> <span>{% trans "Detect controller" %}</span></button>
+                            <button type="button" class="btn btn-default" id="mp-rc-browse"><i class="fa fa-folder-open" aria-hidden="true"></i> {% trans "Locate..." %}</button>
+                        </div>
+                        <div id="mp-rc-browser" hidden></div>
+                        <ul class="mm-rc-list" id="mp-rc-list" role="radiogroup" aria-label="{% trans 'Missions on the controller' %}"></ul>
+                        <div class="mm-buttons">
+                            <button type="button" class="btn btn-primary" id="mp-rc-send" disabled><i class="fa fa-upload" aria-hidden="true"></i> {% trans "Replace on controller" %}</button>
+                        </div>
+                    </div>
+                    <div id="mp-rc-manual">
+                        <div class="form-group">
+                            <div class="mm-label"><label for="mp-uuid">{% trans "Mission folder" %}</label>{% blocktrans asvar t %}The name of the folder of the mission to replace, under Android/data/dji.go.v5/files/waypoint on the controller.{% endblocktrans %}<button type="button" class="mm-info" data-toggle="tooltip" title="{{ t }}" aria-label="{{ t }}"><i class="fa fa-info-circle" aria-hidden="true"></i></button></div>
+                            <input type="text" class="form-control" id="mp-uuid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+                        </div>
+                        <div class="mm-buttons">
+                            <button type="button" class="btn btn-default" id="mp-rc-download"><i class="fa fa-download" aria-hidden="true"></i> {% trans "Download for controller" %}</button>
+                        </div>
+                        <ol class="mm-steps">
+                            <li>{% trans "In DJI Fly, create and save a waypoint mission to replace." %}</li>
+                            <li>{% trans "Connect the controller to a computer with USB." %}</li>
+                            <li>{% trans "Open Android/data/dji.go.v5/files/waypoint and the newest mission folder." %}</li>
+                            <li>{% trans "Replace the .kmz file inside with the downloaded file, keeping the folder name as the file name." %}</li>
+                            <li>{% trans "Reopen DJI Fly and open the mission." %}</li>
+                        </ol>
+                    </div>
+                    <div class="alert" id="mp-rc-msg" role="status" hidden></div>
+                </fieldset>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+window.MM = {
+    pluginUrl: "{{ plugin_url }}",
+    apiUrl: "/api{{ plugin_url }}",
+    missionId: {{ mission_id|safe }},
+    projects: {{ projects|safe }},
+    canAddProject: {{ can_add_project|safe }},
+    drones: {{ drones|safe }},
+    config: {{ config|safe }},
+    rc: {{ rc|safe }},
+    basemaps: {{ basemaps|safe }}
+};
+</script>
+<script src="{{ plugin_url }}common.js?v={{ v }}"></script>
+<script src="{{ plugin_url }}planner.js?v={{ v }}"></script>
+{% endblock %}

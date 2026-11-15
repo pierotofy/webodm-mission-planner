@@ -1,0 +1,940 @@
+.mm-app{
+    --mm-target: 48px;
+    --mm-margin: 16px;
+    --mm-gap: 16px;
+    --mm-pane: 360px;
+    container: mm / inline-size;
+    margin: -8px -15px -8px -15px;
+}
+@media (pointer: fine){
+    .mm-app{
+        --mm-target: 40px;
+    }
+}
+.mm-app [hidden]{
+    display: none !important;
+}
+
+.mm-shell{
+    padding: 8px calc(var(--mm-margin) + env(safe-area-inset-right)) 16px calc(var(--mm-margin) + env(safe-area-inset-left));
+}
+
+.mm-appbar{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    min-height: 64px;
+    margin-bottom: 8px;
+}
+.mm-appbar-titles{
+    flex: 1 1 180px;
+    min-width: 0;
+}
+.mm-app .mm-title{
+    font-size: 1.571em;
+    line-height: 1.3;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.mm-app .mm-subtitle{
+    font-size: 0.929em;
+    margin: 4px 0 0 0;
+}
+
+.mm-app .btn{
+    min-height: var(--mm-target);
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    line-height: 1.2;
+    white-space: normal;
+    font-weight: normal;
+}
+.mm-app .mm-icon-btn{
+    width: var(--mm-target);
+    padding: 0;
+    flex-shrink: 0;
+}
+.mm-app .form-control{
+    height: var(--mm-target);
+}
+.mm-app input.form-control,
+.mm-app select.form-control{
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: normal;
+}
+.mm-app textarea.form-control{
+    height: auto;
+    min-height: calc(var(--mm-target) * 2);
+}
+.mm-app .form-group{
+    margin-bottom: 16px;
+}
+.mm-app label{
+    margin-bottom: 4px;
+}
+.mm-app .help-block,
+.mm-app .mm-text,
+.mm-pane p,
+.mm-pane .alert{
+    max-width: 60ch;
+}
+.mm-app .help-block{
+    margin: 4px 0 8px 0;
+}
+.mm-app .alert{
+    padding: 12px 16px;
+    margin: 8px 0 16px 0;
+}
+.mm-buttons{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+}
+.mm-buttons label.btn{
+    margin: 0;
+}
+.mm-row{
+    display: flex;
+    gap: 16px;
+}
+.mm-row > .form-group{
+    flex: 1;
+    min-width: 0;
+}
+.mm-hidden-file{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+.mm-buttons label.btn:focus-within{
+    outline: 2px solid;
+    outline-offset: 2px;
+}
+
+.mm-pane{
+    position: relative;
+    min-width: 0;
+}
+.mm-pane:focus{
+    outline: none;
+}
+.mm-app .mm-pane-title{
+    font-size: 1.286em;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0 0 16px 0;
+}
+.mm-sub{
+    margin: 24px 0 0 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+.mm-sub-first{
+    margin-top: 0;
+}
+.mm-app .mm-sub-title{
+    font-size: 1.143em;
+    font-weight: 600;
+    border: 0;
+    margin: 0 0 8px 0;
+    padding: 0;
+    width: auto;
+}
+.mm-summary{
+    margin: 16px 0 8px 0;
+}
+
+.mm-map{
+    position: relative;
+    z-index: 0;
+    height: clamp(240px, 45vh, 520px);
+    border-radius: 4px;
+    min-width: 0;
+}
+.mm-drawing.leaflet-container,
+.mm-drawing .leaflet-interactive{
+    cursor: crosshair;
+}
+.mm-map .leaflet-bar a{
+    width: var(--mm-target);
+    height: var(--mm-target);
+    line-height: var(--mm-target);
+}
+.mm-map .leaflet-control-layers-toggle{
+    width: var(--mm-target);
+    height: var(--mm-target);
+}
+
+/* List page: feed */
+.mm-app .mm-section-title{
+    font-size: 1.286em;
+    font-weight: 600;
+    margin: 16px 0 16px 0;
+}
+.mm-feed{
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 288px), 1fr));
+    gap: var(--mm-gap);
+}
+.mm-tile{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid;
+    border-radius: 4px;
+    min-width: 0;
+}
+.mm-tile:focus-within{
+    outline: 2px solid;
+    outline-offset: 2px;
+}
+.mm-app .mm-tile-title{
+    font-size: 1.143em;
+    font-weight: 600;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.mm-tile-link::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+}
+.mm-tile-link:focus{
+    outline: none;
+}
+.mm-tile-meta{
+    margin: 0;
+}
+.mm-tile-actions{
+    margin-top: 8px;
+}
+.mm-empty{
+    max-width: 60ch;
+}
+
+/* Mission page: navigation */
+.mm-tabs{
+    display: flex;
+}
+.mm-tab{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 64px;
+    min-width: 48px;
+    padding: 8px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 0.857em;
+    line-height: 1.2;
+}
+.mm-tab-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 32px;
+    border-radius: 4px;
+    font-size: 1.143em;
+}
+.mm-tab[aria-selected="true"] .mm-tab-label{
+    font-weight: 600;
+}
+.mm-tab:focus-visible{
+    outline: 2px solid;
+    outline-offset: -2px;
+}
+
+/* Mission page: panels */
+.mm-planner-page .mm-pane{
+    display: none;
+}
+.mm-shell[data-view="mission"] [data-panel="mission"],
+.mm-shell[data-view="area"] [data-panel="area"],
+.mm-shell[data-view="flight"] [data-panel="flight"],
+.mm-shell[data-view="options"] [data-panel="options"],
+.mm-shell[data-view="takeoff"] [data-panel="takeoff"],
+.mm-shell[data-view="export"] [data-panel="export"]{
+    display: block;
+}
+
+/* Place search */
+.mm-map .leaflet-top.leaflet-right{
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+}
+.mm-geo{
+    position: relative;
+}
+.mm-geo input{
+    height: 36px;
+    background-clip: padding-box;
+}
+.mm-geo .dropdown-menu{
+    top: 100%;
+    margin-top: 4px;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+.mm-geo .dropdown-menu > li > a{
+    white-space: normal;
+    padding: 8px 16px;
+    line-height: 1.3;
+    min-height: var(--mm-target);
+}
+.mm-geo-title{
+    display: block;
+}
+.mm-geo-detail{
+    display: block;
+    font-size: 0.857em;
+}
+
+/* Compact: one pane, bottom navigation bar */
+.mm-planner-page .mm-shell{
+    display: flex;
+    flex-direction: column;
+}
+.mm-planner-page .mm-appbar{
+    order: 1;
+}
+.mm-planner-page .mm-body{
+    order: 2;
+}
+.mm-planner-page .mm-nav{
+    order: 3;
+    position: sticky;
+    bottom: 0;
+    z-index: 1100;
+    margin: 16px calc(-1 * var(--mm-margin) - env(safe-area-inset-right)) -16px calc(-1 * var(--mm-margin) - env(safe-area-inset-left));
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    border-top: 1px solid;
+}
+.mm-body{
+    display: flex;
+    flex-direction: column;
+    gap: var(--mm-gap);
+}
+
+/* Medium: navigation rail, 24dp margins */
+@container mm (min-width: 600px){
+    .mm-shell{
+        --mm-margin: 24px;
+        --mm-gap: 24px;
+    }
+    .mm-planner-page .mm-shell{
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 80px;
+        grid-template-areas: "bar nav" "body nav";
+        column-gap: 24px;
+        align-items: start;
+    }
+    .mm-planner-page .mm-appbar{
+        grid-area: bar;
+    }
+    .mm-planner-page .mm-body{
+        grid-area: body;
+    }
+    .mm-planner-page .mm-nav{
+        grid-area: nav;
+        position: sticky;
+        top: 16px;
+        bottom: auto;
+        margin: 0;
+        padding: 8px 0 0 0;
+        border: 0;
+        background: none;
+    }
+    .mm-tabs{
+        flex-direction: column;
+        gap: 12px;
+    }
+    .mm-tab{
+        flex: none;
+        min-height: 56px;
+    }
+}
+
+/* Expanded: two panes */
+@container mm (min-width: 840px){
+    .mm-planner-page .mm-body{
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) var(--mm-pane);
+        column-gap: 24px;
+        align-items: start;
+    }
+    .mm-planner-page .mm-map-wrap{
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .mm-planner-page .mm-pane{
+        grid-column: 2;
+        grid-row: 1;
+    }
+    .mm-planner-page .mm-body{
+        height: max(480px, calc(100dvh - var(--mm-top, 96px) - 16px));
+        grid-template-rows: minmax(0, 1fr);
+    }
+    .mm-planner-page .mm-map-wrap{
+        height: 100%;
+    }
+    .mm-planner-page .mm-pane{
+        height: 100%;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-right: 8px;
+    }
+}
+
+/* Large and extra-large: wider panes */
+@container mm (min-width: 1200px){
+    .mm-shell{
+        --mm-pane: 400px;
+    }
+}
+@container mm (min-width: 1600px){
+    .mm-shell{
+        --mm-pane: 440px;
+    }
+}
+
+/* Foldables: keep the map and the panes on either side of the hinge */
+@container mm (min-width: 600px){
+    .mm-app.mm-folded .mm-body{
+        display: grid;
+        grid-template-columns: var(--mm-fold-a) minmax(0, 1fr);
+        column-gap: var(--mm-fold-gap);
+        align-items: start;
+    }
+    .mm-app.mm-folded.mm-planner-page .mm-pane{
+        grid-column: 2;
+    }
+    .mm-app.mm-folded .mm-body{
+        height: max(480px, calc(100dvh - var(--mm-top, 96px) - 16px));
+        grid-template-rows: minmax(0, 1fr);
+    }
+    .mm-app.mm-folded .mm-map-wrap,
+    .mm-app.mm-folded .mm-pane{
+        height: 100%;
+    }
+    .mm-app.mm-folded .mm-pane{
+        overflow-y: auto;
+    }
+}
+.mm-app.mm-folded-v .mm-map-wrap{
+    height: var(--mm-fold-map-h);
+}
+
+/* Confirmation dialog */
+.mm-modal{
+    --mm-target: 48px;
+}
+@media (pointer: fine){
+    .mm-modal{
+        --mm-target: 40px;
+    }
+}
+.mm-modal .modal-body{
+    padding: 24px 24px 8px 24px;
+}
+.mm-modal .modal-body p{
+    max-width: 60ch;
+}
+.mm-modal .modal-footer{
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 24px 24px 24px;
+    border-top: 0;
+}
+.mm-modal .modal-footer .btn{
+    min-height: var(--mm-target);
+    min-width: 88px;
+    margin: 0;
+}
+
+/* Labels with info tooltips */
+.mm-label{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+.mm-label label,
+.mm-label legend{
+    margin: 0;
+}
+.mm-info{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    opacity: 0.6;
+    font-size: 0.929em;
+}
+.mm-info::before{
+    content: "";
+    position: absolute;
+    inset: -12px;
+}
+.mm-info:hover,
+.mm-info:focus-visible{
+    opacity: 1;
+}
+.mm-info:focus-visible{
+    outline: 2px solid;
+    border-radius: 4px;
+}
+.tooltip-inner{
+    max-width: 240px;
+    text-align: left;
+}
+.mm-app .checkbox{
+    margin: 8px 0;
+}
+.mm-app .checkbox label{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--mm-target);
+    padding-left: 0;
+}
+.mm-app .checkbox input[type="checkbox"]{
+    position: static;
+    margin: 0;
+    width: 18px;
+    height: 18px;
+}
+
+.mm-map .leaflet-overlay-pane svg{
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+/* Mission cards */
+.mm-tile-head{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+.mm-tile-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    font-size: 1.143em;
+}
+.mm-tile-heading{
+    min-width: 0;
+    flex: 1;
+}
+.mm-tile-heading .mm-tile-meta{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.mm-tile-meta .fa,
+.mm-tile-facts .fa{
+    margin-right: 8px;
+    opacity: 0.7;
+}
+.mm-tile-facts{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+}
+
+/* Basemap selector: undo WebODM's autolayers styling, open as a dropdown under the button */
+.mm-map .leaflet-control-layers{
+    position: relative;
+}
+.mm-map .leaflet-control-layers-expanded{
+    padding: 0;
+}
+.mm-map .leaflet-control-layers-expanded .leaflet-control-layers-toggle{
+    display: block;
+}
+.mm-map .leaflet-control-layers-expanded .leaflet-control-layers-list{
+    position: absolute;
+    top: 100%;
+    right: -2px;
+    margin-top: 4px;
+    padding: 4px 0;
+    height: auto !important;
+    max-height: none;
+    overflow: visible;
+    background: #FFFFFF;
+    color: #333333;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    white-space: nowrap;
+}
+.mm-map .leaflet-control-layers-base{
+    display: block;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    padding: 0;
+}
+.mm-map .leaflet-control-layers-base label{
+    display: flex;
+    align-items: center;
+    height: auto;
+    min-width: 0;
+    min-height: var(--mm-target);
+    margin: 0;
+    padding: 0 16px 0 12px;
+    font-weight: normal;
+}
+.mm-map .leaflet-control-layers-base label > div{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.mm-map .leaflet-control-layers-selector{
+    top: 0;
+    margin: 0;
+}
+.mm-map .leaflet-control-layers-separator,
+.mm-map .leaflet-control-layers-overlays{
+    display: none;
+}
+.mm-map .leaflet-control-layers-expanded .leaflet-control-layers-list::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -8px;
+    height: 8px;
+}
+
+.mm-sub-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.mm-app .mm-sub-head .mm-sub-title{
+    margin: 0;
+}
+
+/* Map area and stats card */
+.mm-map-wrap{
+    position: relative;
+    height: clamp(280px, 50vh, 560px);
+    min-width: 0;
+}
+.mm-map-wrap .mm-map{
+    height: 100%;
+}
+.mm-hud{
+    position: absolute;
+    left: 10px;
+    bottom: 34px;
+    z-index: 800;
+    min-width: 200px;
+    max-width: calc(100% - 20px);
+    padding: 8px 12px;
+    border: 1px solid #3A3D45;
+    border-radius: 7px;
+    background: rgba(24, 27, 34, 0.88);
+    color: #C7CBD1;
+    font-size: 0.929em;
+    pointer-events: auto;
+}
+.mm-hud-head{
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+}
+.mm-hud-head .fa{
+    margin-left: auto;
+    font-size: 0.857em;
+    opacity: 0.7;
+    transition: transform 0.15s;
+}
+.mm-hud-name{
+    font-weight: 600;
+    color: #7FB3E8;
+}
+.mm-app .mm-hud-title{
+    margin: 0 0 4px 0;
+    font-size: 1em;
+}
+.mm-hud-closed .mm-hud-list,
+.mm-hud-closed .mm-hud-info{
+    display: none;
+}
+.mm-hud-closed .mm-hud-title{
+    margin: 0;
+}
+.mm-hud-closed .mm-hud-head .fa{
+    transform: rotate(-90deg);
+}
+.mm-hud-head:focus-visible{
+    outline: 2px solid #7FB3E8;
+    outline-offset: 2px;
+}
+.mm-hud-context{
+    font-size: 0.857em;
+    color: #8A93A0;
+}
+.mm-hud-list{
+    margin: 0;
+}
+.mm-hud-row{
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    line-height: 1.6;
+}
+.mm-hud-row dt{
+    font-weight: normal;
+}
+.mm-hud-row dd{
+    margin: 0;
+    color: #F0A500;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+.mm-hud-info{
+    margin: 6px 0 0 0;
+    max-width: 260px;
+    font-size: 0.857em;
+    color: #8A93A0;
+}
+.mm-busy,
+.mm-toast{
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 900;
+    padding: 6px 12px;
+    border-radius: 4px;
+    background: rgba(24, 27, 34, 0.9);
+    color: #FFFFFF;
+    max-width: calc(100% - 120px);
+}
+.mm-toast{
+    top: 48px;
+}
+.mm-drawing.leaflet-container,
+.mm-drawing .leaflet-interactive{
+    cursor: crosshair;
+}
+.mm-handle{
+    background: #FFFFFF;
+    border: 2px solid #1A73E8;
+    border-radius: 2px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+}
+.mm-handle-mid{
+    opacity: 0.6;
+    transform: scale(0.75);
+    border-radius: 50%;
+}
+.mm-handle-on{
+    background: #1A73E8;
+}
+.mm-handle-centre{
+    border-radius: 50%;
+    border-color: #E53935;
+}
+.mm-num{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+    background: #a88bff;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.9);
+}
+.mm-num-edit{
+    background: #1A73E8;
+    cursor: move;
+}
+.mm-map-label{
+    background: rgba(24, 27, 34, 0.85);
+    color: #FFFFFF;
+    border: 0;
+    box-shadow: none;
+    font-weight: 600;
+}
+.mm-map-label::before{
+    display: none;
+}
+.mm-map-label-static{
+    width: auto !important;
+    height: auto !important;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+/* Planner controls */
+.mm-seg{
+    display: flex;
+}
+.mm-seg .btn{
+    flex: 1;
+}
+.mm-readout{
+    margin: 4px 0 0 0;
+    font-size: 0.929em;
+}
+.mm-label-text{
+    font-weight: 700;
+}
+.mm-inline{
+    display: flex;
+    gap: 8px;
+}
+.mm-inline .form-control{
+    flex: 1;
+    min-width: 0;
+}
+.mm-app .btn[aria-pressed="true"]{
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+.mm-steps{
+    padding-left: 20px;
+    margin: 8px 0 16px 0;
+    max-width: 60ch;
+}
+.mm-steps li{
+    margin-bottom: 4px;
+}
+.mm-rc-list{
+    list-style: none;
+    padding: 0;
+    margin: 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.mm-rc-item{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    border-radius: 4px;
+    font-weight: normal;
+    cursor: pointer;
+}
+.mm-rc-on{
+    border-width: 2px;
+}
+.mm-rc-item input{
+    margin: 0;
+}
+.mm-rc-thumb{
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+}
+.mm-rc-text{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.mm-rc-date{
+    font-weight: 600;
+}
+.mm-crumbs{
+    font-size: 0.929em;
+    overflow-wrap: anywhere;
+}
+.mm-folders{
+    list-style: none;
+    padding: 0;
+    margin: 0 0 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+}
+.mm-folders .btn{
+    width: 100%;
+    justify-content: flex-start;
+}
+.mm-section-icon{
+    margin-right: 8px;
+    opacity: 0.7;
+}
+.mm-tile-meta{
+    margin: 2px 0 0 0;
+    font-size: 0.929em;
+}
+.mm-app .mm-output{
+    display: flex;
+    align-items: center;
+    background: transparent;
+    box-shadow: none;
+    cursor: default;
+    font-variant-numeric: tabular-nums;
+}
+.mm-app .form-control[disabled]{
+    cursor: not-allowed;
+}
+.mm-app .btn.mm-retry,
+.mm-toast .btn.mm-retry{
+    min-height: 0;
+    padding: 0 0 0 8px;
+    vertical-align: baseline;
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+}

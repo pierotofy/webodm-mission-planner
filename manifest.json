@@ -1,0 +1,13 @@
+{
+	"name": "Mission Planner",
+	"webodmMinVersion": "4.0.0",
+	"description": "Plan drone missions: 2D, oblique, corridor, orbits and panoramas, with terrain follow, takeoff zones and KMZ export for DJI Fly.",
+	"version": "0.6.0",
+	"author": "Piero Toffanin",
+	"email": "pt@masseranolabs.com",
+	"repository": "https://github.com/pierotofy/webodm-mission-planner",
+	"tags": ["mission", "planning", "drone", "dji"],
+	"homepage": "https://github.com/pierotofy/webodm-mission-planner",
+	"experimental": true,
+	"deprecated": false
+}
